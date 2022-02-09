@@ -2,15 +2,26 @@
   "name": "wetube",
   "version": "1.0.0",
   "description": "The best way to watch videos",
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DdooBuggy/CloneCoding_weTube_2022.git"
+  },
+  "scripts": {
+    "dev": "nodemon --exec babel-node index.js"
   },
   "author": "Ddoobuggy",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/DdooBuggy/CloneCoding_weTube_2022/issues"
   },
-  "homepage": "https://github.com/DdooBuggy/CloneCoding_weTube_2022#readme"
+  "homepage": "https://github.com/DdooBuggy/CloneCoding_weTube_2022#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.2",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.16.11",
+    "nodemon": "^2.0.15"
+  }
 }
