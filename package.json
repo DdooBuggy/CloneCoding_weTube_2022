@@ -7,7 +7,7 @@
     "url": "git+https://github.com/DdooBuggy/CloneCoding_weTube_2022.git"
   },
   "scripts": {
-    "dev": "nodemon --exec babel-node index.js"
+    "dev": "nodemon --exec babel-node src/server.js"
   },
   "author": "Ddoobuggy",
   "license": "MIT",
