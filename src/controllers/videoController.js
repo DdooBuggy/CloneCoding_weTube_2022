@@ -16,7 +16,7 @@ let videos = [
         id: 2,
     },
     {
-        title: "First Video",
+        title: "Third Video",
         rating: 4,
         comments: 29,
         createdAt: "52 minutes ago",
@@ -44,3 +44,20 @@ export const postEdit = (req, res) => {
     videos[id-1].title = title;
     return res.redirect(`/videos/${id}`);
 }
+export const getUpload = (req, res) => {
+    console.log("getUploaded");
+    return res.render("upload", {pageTitle:"Upload Video"});
+}
+export const postUpload = (req, res) => {
+    const {title} = req.body;
+    const newVideo = {
+        title: req.body.title,
+        rating: 0,
+        comments: 0,
+        createdAt: "just now",
+        views: 0,
+        id: videos.length + 1,
+    };
+    videos.push(newVideo);
+    return res.redirect("/");
+};
