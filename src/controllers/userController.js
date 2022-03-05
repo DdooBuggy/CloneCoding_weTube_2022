@@ -8,26 +8,25 @@ export const postJoin = async (req, res) => {
   const { name, username, email, password, password2, location } = req.body;
   const pageTitle = "Join";
   if (password !== password2) {
-    return res.status(400).render("join", {
-      pageTitle,
-      errorMessage: "Password confirmation does not match.",
-    });
+    req.flash("error", "Password confirmation does not match.");
+    return res.status(400).render("join", { pageTitle });
   }
-  const exists = await User.exists({ $or: [{ username }, { email }] });
-  if (exists) {
-    return res.status(400).render("join", {
-      pageTitle,
-      errorMessage: "This username/email is already taken.",
-    });
+  const existsUsername = await User.exists({ username });
+  const existsEmail = await User.exists({ email });
+  if (existsUsername) {
+    req.flash("error", "This username is already taken.");
+    return res.status(400).render("join", { pageTitle });
+  }
+  if (existsEmail) {
+    req.flash("error", "This e-mail is already taken.");
+    return res.status(400).render("join", { pageTitle });
   }
   try {
     await User.create({ name, username, email, password, location });
     return res.redirect("/login");
   } catch (error) {
-    return res.status(400).render("join", {
-      pageTitle: "Join",
-      errorMessage: error._message,
-    });
+    req.flash("error", error._message);
+    return res.status(400).render("join", { pageTitle: "Join" });
   }
 };
 
@@ -39,17 +38,13 @@ export const postLogin = async (req, res) => {
   const pageTitle = "Login";
   const user = await User.findOne({ username, socialOnly: false });
   if (!user) {
-    return res.status(400).render("login", {
-      pageTitle,
-      errorMessage: "An account with this username does not exists.",
-    });
+    req.flash("error", "An account with this username does not exists.");
+    return res.status(400).render("login", { pageTitle });
   }
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) {
-    return res.status(400).render("login", {
-      pageTitle,
-      errorMessage: "Wrong password.",
-    });
+    req.flash("error", "Wrong password.");
+    return res.status(400).render("login", { pageTitle });
   }
   req.session.loggedIn = true;
   req.session.user = user;
@@ -131,6 +126,7 @@ export const finishGithubLogin = async (req, res) => {
 
 // logout
 export const logout = (req, res) => {
+  req.flash("info", "Bye Bye");
   req.session.destroy();
   return res.redirect("/");
 };
@@ -157,10 +153,8 @@ export const postEdit = async (req, res) => {
   if (editedParams.length > 0) {
     const existingUser = await User.findOne({ $or: editedParams });
     if (existingUser && existingUser._id.toString() !== _id) {
-      return res.render("edit-profile", {
-        pageTitle: "Edit Profile",
-        errorMessage: "This username/email is already taken.",
-      });
+      req.flash("error", "This username/email is already taken.");
+      return res.render("edit-profile", { pageTitle: "Edit Profile" });
     }
   }
   const updateUser = await User.findByIdAndUpdate(
@@ -181,6 +175,7 @@ export const postEdit = async (req, res) => {
 // change password
 export const getChangePassword = (req, res) => {
   if (req.session.user.socialOnly === true) {
+    req.flash("error", "You don't have a password");
     return res.redirect("/");
   }
   return res.render("users/change-password", { pageTitle: "Change Password" });
@@ -195,19 +190,20 @@ export const postChangePassword = async (req, res) => {
   const user = await User.findById(_id);
   const ok = await bcrypt.compare(oldPassword, user.password);
   if (!ok) {
-    return res.status(400).render("users/change-password", {
-      pageTitle: "Change Password",
-      errorMessage: "The current password is incorrect",
-    });
+    req.flash("error", "The current password is incorrect");
+    return res
+      .status(400)
+      .render("users/change-password", { pageTitle: "Change Password" });
   }
   if (newPassword !== newPasswordConfirmation) {
-    return res.status(400).render("users/change-password", {
-      pageTitle: "Change Password",
-      errorMessage: "The password does not match the confirmation",
-    });
+    req.flash("error", "The password does not match the confirmation");
+    return res
+      .status(400)
+      .render("users/change-password", { pageTitle: "Change Password" });
   }
   user.password = newPassword;
   await user.save();
+  req.flash("info", "Password Updated");
   return res.redirect("/users/logout");
 };
 
@@ -222,6 +218,7 @@ export const see = async (req, res) => {
     },
   });
   if (!user) {
+    req.flash("error", "User not found");
     return res.status(404).render("404", { pageTitle: "User not found" });
   }
   return res.render("users/profile", { pageTitle: user.name, user });

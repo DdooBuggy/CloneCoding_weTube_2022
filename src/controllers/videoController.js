@@ -31,6 +31,7 @@ export const getEdit = async (req, res) => {
     return res.status(404).render("404", { pageTitle: "Video not found." });
   }
   if (String(video.owner) !== String(_id)) {
+    req.flash("error", "You're not the owner of the video");
     return res.status(403).redirect("/");
   }
   return res.render("edit", { pageTitle: `Edit: ${video.title}`, video });
@@ -46,6 +47,7 @@ export const postEdit = async (req, res) => {
     return res.status(404).render("404", { pageTitle: "Video not found." });
   }
   if (String(video.owner) !== String(_id)) {
+    req.flash("error", "You're not the owner of the video");
     return res.status(403).redirect("/");
   }
   await Video.findByIdAndUpdate(id, {
@@ -53,6 +55,7 @@ export const postEdit = async (req, res) => {
     description,
     hashtags: Video.formatHashtags(hashtags),
   });
+  req.flash("success", "Changes saved");
   return res.redirect(`/videos/${id}`);
 };
 
@@ -80,10 +83,8 @@ export const postUpload = async (req, res) => {
     user.save();
     return res.redirect("/");
   } catch (error) {
-    return res.status(400).render("upload", {
-      pageTitle: "Upload Video",
-      errorMessage: error._message,
-    });
+    req.flash("error", error._message);
+    return res.status(400).render("upload", { pageTitle: "Upload Video" });
   }
 };
 
@@ -98,6 +99,7 @@ export const delelteVideo = async (req, res) => {
     return res.status(404).render("404", { pageTitle: "Video not found." });
   }
   if (String(video.owner) !== String(_id)) {
+    req.flash("error", "You're not the owner of the video");
     return res.status(403).redirect("/");
   }
   await Video.findByIdAndDelete(id);

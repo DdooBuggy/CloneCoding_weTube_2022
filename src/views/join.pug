@@ -1,8 +1,6 @@
 extends base
 
 block content 
-    if errorMessage 
-        span=errorMessage
     form(method="POST")
         input(placeholder="Name", name="name", type="text", required)
         input(placeholder="e-mail", name="email", type="email", required)
