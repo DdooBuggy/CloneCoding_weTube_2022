@@ -12,6 +12,9 @@ const fullScreenIcon = fullScreenBtn.querySelector("i");
 const videoContainer = document.getElementById("videoContainer");
 const videoControls = document.getElementById("videoControls");
 
+const form = document.getElementById("commentForm");
+const textarea = form.querySelector("textarea");
+
 let controlsTimeout = null;
 let controlsMovementTimeout = null;
 let volumeValue = 0.5;
@@ -100,7 +103,7 @@ const handleMouseLeave = () => {
 };
 
 const handleKeydown = (event) => {
-  if (event.code === "Space") {
+  if (event.code === "Space" && event.target !== textarea) {
     handlePlayClick();
   }
 };
